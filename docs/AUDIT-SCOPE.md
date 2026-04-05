@@ -1,5 +1,11 @@
 # Audit Scope & Guidance
 
+## Whitepaper
+
+The full technical whitepaper (v1.4) is included in this repository at `docs/SwarmBase-Whitepaper-v1.4.pdf` and is publicly available at **swarmbase.io/whitepaper**. It covers the full protocol vision, tokenomics, phased delivery roadmap, and chain architecture. The current audit scope covers Phase 1 contracts only — future contracts (Phases 2–5) are described in the whitepaper but are not yet deployed.
+
+---
+
 ## Listing Goals
 
 This audit is a prerequisite for two specific listings. Please flag any issues that would block either:
@@ -13,7 +19,7 @@ DappBay requires audited, verified contracts with no malicious patterns. Specifi
 - Proxy patterns with upgradeability that could change logic post-listing
 
 **2. opBNB ecosystem / BNB Chain**
-Contracts are deployed on opBNB Mainnet (ChainId 204). Compatibility with BNBscan contract verification is required. Flattened source files are provided in `flattened/` for this purpose — they are for explorer verification only, not for audit review. The flattened files are longer because they inline all OpenZeppelin dependencies into a single file; the SwarmBase logic is identical to `contracts/`.
+The pre-TGE engagement contracts (SwarmCore, SwarmBadge) are deployed on opBNB Mainnet (ChainId 204). The SwarmToken contract is also deployed on opBNB for pre-TGE testing purposes only — **the production $SWARM token will be redeployed on BNB Smart Chain (BSC, ChainId 56) at TGE**. Compatibility with BNBscan contract verification is required. Flattened source files are provided in `flattened/` for this purpose — they are for explorer verification only, not for audit review. The flattened files are longer because they inline all OpenZeppelin dependencies into a single file; the SwarmBase logic is identical to `contracts/`.
 
 If any pattern in the contracts would cause a DappBay review team to flag or reject the submission, please note it explicitly in your findings — even if it does not constitute a traditional security vulnerability.
 
@@ -128,13 +134,15 @@ Test coverage:
 
 ## Live Deployment
 
-All three contracts are deployed on **opBNB Mainnet (ChainId 204)** and have been tested with a 100-wallet realistic simulation. The simulation includes a 4-tier referral tree, varied engagement behaviours, and Pioneer NFT mints. Transaction history is publicly visible on opBNBscan.
+All three contracts are currently deployed on **opBNB Mainnet (ChainId 204)** for pre-TGE community engagement and testing. A 100-wallet realistic simulation has been run covering a 4-tier referral tree, varied engagement behaviours, and Pioneer NFT mints. Transaction history is publicly visible on opBNBscan.
 
-| Contract | Address |
-|---|---|
-| SwarmToken | `0x5B0fdb169Caba66b16C06A1B2D655993114e6458` |
-| SwarmCore | `0x333628c9e0C3B300558C1a998534001A31F12314` |
-| SwarmBadge | `0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c` |
+**Important:** SwarmCore and SwarmBadge will remain on opBNB as the engagement layer. SwarmToken will be **redeployed on BSC (ChainId 56)** at TGE as the production $SWARM token. The contract logic being audited here is identical — only the deployment chain changes.
+
+| Contract | Pre-TGE Address (opBNB) | Production Chain |
+|---|---|---|
+| SwarmToken | `0x5B0fdb169Caba66b16C06A1B2D655993114e6458` | BSC (redeployed at TGE) |
+| SwarmCore | `0x333628c9e0C3B300558C1a998534001A31F12314` | opBNB (permanent) |
+| SwarmBadge | `0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c` | opBNB (permanent) |
 
 opBNBscan: https://opbnbscan.com
 

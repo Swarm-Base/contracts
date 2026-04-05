@@ -1,5 +1,10 @@
 # SwarmBase Tokenomics — $SWARM
 
+## Token
+
+**Standard:** BEP-20 on BNB Smart Chain (BSC, ChainId 56) — production TGE deployment
+**Note:** A pre-TGE test deployment exists on opBNB Mainnet for community engagement only. The production $SWARM token will be a fresh BSC deploy at TGE.
+
 ## Total Supply
 
 **1,000,000,000 $SWARM** (fixed, no mint function post-deploy)

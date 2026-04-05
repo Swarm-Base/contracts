@@ -1,6 +1,12 @@
 /**
  * SwarmBase — Full Deployment Script
- * Network: opBNB Mainnet (ChainId 204)
+ *
+ * Chain deployment guide:
+ *   - SwarmCore + SwarmBadge → opBNB Mainnet (ChainId 204) — pre-TGE engagement layer
+ *   - SwarmToken ($SWARM)    → BNB Smart Chain (ChainId 56)  — production TGE token
+ *
+ * This script deploys all three to the same network for pre-TGE testing.
+ * At TGE, SwarmToken must be redeployed on BSC separately.
  *
  * Deployment Order:
  *   1. SwarmToken ($SWARM)
@@ -10,8 +16,11 @@
  * Vesting: handled via Team.Finance (no on-chain vesting contract)
  * Airdrop:  distributed from Gnosis Safe at TGE at owner's discretion
  *
- * Usage:
+ * Usage (pre-TGE engagement, opBNB):
  *   PRIVATE_KEY=0x... npm run deploy:opbnb
+ *
+ * Usage (production token, BSC):
+ *   PRIVATE_KEY=0x... npm run deploy:bsc
  *
  * ⚠️  PRODUCTION DEPLOY: owner must be a Gnosis Safe multisig, not an EOA.
  */

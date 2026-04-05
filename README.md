@@ -2,8 +2,10 @@
 
 Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community participation, issues soulbound NFT badges, and handles $SWARM token distribution ahead of the token launch.
 
-**Network:** opBNB Mainnet (ChainId 204)  
-**Compiler:** Solidity 0.8.24 · OpenZeppelin 4.9.x · Optimizer disabled
+**Engagement layer (SwarmCore + SwarmBadge):** opBNB Mainnet (ChainId 204) — permanent  
+**Production token (SwarmToken):** BNB Smart Chain / BSC (ChainId 56) — deployed at TGE  
+**Pre-TGE token test deploy:** opBNB Mainnet (same addresses below, for testing only)  
+**Compiler:** Solidity 0.8.24 · OpenZeppelin 4.9.x · Optimizer enabled (200 runs)
 
 ---
 
@@ -11,9 +13,11 @@ Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community 
 
 | Document | Description |
 |---|---|
+| [Whitepaper v1.4](docs/SwarmBase-Whitepaper-v1.4.pdf) | Full technical whitepaper — also at swarmbase.io/whitepaper |
 | [OVERVIEW](docs/OVERVIEW.md) | What SwarmBase is, how the engagement layer works, what happens at TGE |
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Contract interactions, state machines, scoring formula, events |
 | [TOKENOMICS](docs/TOKENOMICS.md) | $SWARM distribution, vesting, DEX liquidity, airdrop mechanics |
+| [ROADMAP](docs/ROADMAP.md) | Phased delivery: Phase 1 (live) through Phase 5 (full decentralization) |
 | [AUDIT SCOPE](docs/AUDIT-SCOPE.md) | Audit targets, security properties to verify, known design decisions |
 
 **Start here:** [docs/OVERVIEW.md](docs/OVERVIEW.md) → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) → [docs/AUDIT-SCOPE.md](docs/AUDIT-SCOPE.md)

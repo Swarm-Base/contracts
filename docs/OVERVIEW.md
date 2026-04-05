@@ -12,12 +12,14 @@ The pre-TGE engagement layer — which these contracts represent — is a commun
 
 ## The $SWARM Token
 
-$SWARM is the native utility token of the SwarmBase protocol. It is used to:
+$SWARM is the native utility token of the SwarmBase protocol, deployed as a **BEP-20 token on BNB Smart Chain (BSC, ChainId 56)** at TGE. It is used to:
 - Pay for AI compute tasks on the protocol
 - Stake for governance rights
 - Access premium agent capabilities
 
 At TGE, 20% of all platform fees are permanently burned, creating deflationary pressure.
+
+> **Chain note:** The $SWARM token production deployment is on **BSC**. The pre-TGE SwarmToken deployment on opBNB Mainnet (ChainId 204) exists solely for community engagement testing and will not be the live token. SwarmCore and SwarmBadge remain on opBNB as the pre-TGE engagement layer.
 
 ## How the Engagement Layer Works
 

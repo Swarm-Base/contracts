@@ -10,7 +10,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice Production token for the SwarmBase protocol.
  * @dev BEP-20 compatible. 1B total supply. Deflationary (20% fee burn).
  * @dev Tokenomics: swarmbase.io/tokenomics
- * @dev Chain: BNB Chain / opBNB Mainnet
+ * @dev Chain: BNB Smart Chain (BSC) — production TGE deployment.
+ *      The current pre-TGE deployment on opBNB Mainnet is for testing and
+ *      community engagement purposes only. The production $SWARM token will
+ *      be deployed on BSC (ChainId 56) at TGE.
  *
  * Distribution:
  *   20% — Community (200M)       2% at TGE, 1mo cliff, 24mo vest

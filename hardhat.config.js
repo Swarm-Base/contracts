@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
+const NODEREAL_API_KEY = process.env.NODEREAL_API_KEY || "51d2a805805948ce8e3be59c513a4020";
+
 module.exports = {
   solidity: {
     version: "0.8.24",
@@ -36,5 +38,20 @@ module.exports = {
     tests: "./test",
     artifacts: "./artifacts",
     cache: "./cache",
+  },
+  etherscan: {
+    apiKey: {
+      opbnb: NODEREAL_API_KEY,
+    },
+    customChains: [
+      {
+        network: "opbnb",
+        chainId: 204,
+        urls: {
+          apiURL: `https://open-platform.nodereal.io/${NODEREAL_API_KEY}/op-bnb-mainnet/contract/`,
+          browserURL: "https://opbnbscan.com/",
+        },
+      },
+    ],
   },
 };
