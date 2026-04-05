@@ -13,7 +13,7 @@ DappBay requires audited, verified contracts with no malicious patterns. Specifi
 - Proxy patterns with upgradeability that could change logic post-listing
 
 **2. opBNB ecosystem / BNB Chain**
-Contracts are deployed on opBNB Mainnet (ChainId 204). Compatibility with BNBscan contract verification is required. Flattened source files are provided in `flattened/` for this purpose.
+Contracts are deployed on opBNB Mainnet (ChainId 204). Compatibility with BNBscan contract verification is required. Flattened source files are provided in `flattened/` for this purpose — they are for explorer verification only, not for audit review. The flattened files are longer because they inline all OpenZeppelin dependencies into a single file; the SwarmBase logic is identical to `contracts/`.
 
 If any pattern in the contracts would cause a DappBay review team to flag or reject the submission, please note it explicitly in your findings — even if it does not constitute a traditional security vulnerability.
 

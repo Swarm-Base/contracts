@@ -28,7 +28,7 @@ Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community 
 | `contracts/SwarmBadge.sol` | `0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c` |
 | `contracts/SwarmToken.sol` | `0x5B0fdb169Caba66b16C06A1B2D655993114e6458` |
 
-Flattened single-file versions (for opBNBscan verification): `flattened/`
+Flattened single-file versions (for opBNBscan verification only — **not for audit review**): `flattened/`
 
 ---
 
