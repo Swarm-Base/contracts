@@ -1,5 +1,24 @@
 # Audit Scope & Guidance
 
+## Listing Goals
+
+This audit is a prerequisite for two specific listings. Please flag any issues that would block either:
+
+**1. Binance DappBay** (primary target)
+DappBay requires audited, verified contracts with no malicious patterns. Specific flags that would block listing:
+- Admin keys capable of draining user funds
+- Hidden mint or inflation mechanisms
+- Owner-controlled blacklist on token transfers
+- Unverified contracts on opBNBscan
+- Proxy patterns with upgradeability that could change logic post-listing
+
+**2. opBNB ecosystem / BNB Chain**
+Contracts are deployed on opBNB Mainnet (ChainId 204). Compatibility with BNBscan contract verification is required. Flattened source files are provided in `flattened/` for this purpose.
+
+If any pattern in the contracts would cause a DappBay review team to flag or reject the submission, please note it explicitly in your findings — even if it does not constitute a traditional security vulnerability.
+
+---
+
 ## In Scope
 
 | File | Lines | Priority |
@@ -8,7 +27,7 @@
 | `contracts/SwarmBadge.sol` | ~230 | High |
 | `contracts/SwarmToken.sol` | ~180 | High |
 
-**Everything else in this repository is out of scope.**
+Scripts, tests, and frontend code are **not in scope for the security audit**. However, the live frontend at **core.swarmbase.io** is provided as context so auditors can verify that function signatures and ABI match what is deployed on-chain. Any mismatch between the contract interface and the frontend integration is worth noting.
 
 ---
 
