@@ -1,7 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
-const NODEREAL_API_KEY = process.env.NODEREAL_API_KEY || "51d2a805805948ce8e3be59c513a4020";
+const NODEREAL_API_KEY = process.env.NODEREAL_API_KEY || "";
 
 module.exports = {
   solidity: {
