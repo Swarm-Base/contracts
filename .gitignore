@@ -1,0 +1,20 @@
+node_modules/
+cache/
+artifacts/
+.env
+
+# Wallet files with private keys — never commit
+sim-wallets.json
+test-wallets.json
+test-wallets-10.json
+test-dist-wallet.json
+
+# Old/stale files
+*.zip
+points-portal-v2.html
+points-portal-v3.html
+register-with-referrals.js
+setup-referrals.js
+/deploy.js
+deployment-v4.json
+DEPLOY.md
