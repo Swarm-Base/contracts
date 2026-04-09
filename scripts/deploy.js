@@ -30,21 +30,38 @@ const { ethers } = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
+  // ─── GNOSIS SAFE (M-01 FIX) ──────────────────────────────────────────────
+  // PRODUCTION: Set GNOSIS_SAFE env var to your multisig address.
+  // All 1B SWARM mint directly to the Safe — deployer EOA never holds supply.
+  // Production Safe: 0x26eFA122d6f3bFe97A946768eeCb49379A953121 (BSC)
+  // Example: GNOSIS_SAFE=0x26eFA122d6f3bFe97A946768eeCb49379A953121 npx hardhat run scripts/deploy.js --network bsc
+  const GNOSIS_SAFE = process.env.GNOSIS_SAFE || "";
+  if (!GNOSIS_SAFE || !ethers.isAddress(GNOSIS_SAFE)) {
+    console.error("\n❌ ERROR: GNOSIS_SAFE env var is missing or invalid.");
+    console.error("   Set it to your Gnosis Safe multisig address before deploying.");
+    console.error("   Example: GNOSIS_SAFE=0xYour... npx hardhat run scripts/deploy.js --network bsc\n");
+    process.exit(1);
+  }
+
   console.log("\n╔══════════════════════════════════════╗");
   console.log("║   SwarmBase — Deployment             ║");
   console.log("╚══════════════════════════════════════╝");
-  console.log(`\nDeployer:  ${deployer.address}`);
+  console.log(`\nDeployer:    ${deployer.address}  (EOA — pays gas only)`);
+  console.log(`Gnosis Safe: ${GNOSIS_SAFE}  (receives 1B SWARM + contract ownership)`);
   const balance = await ethers.provider.getBalance(deployer.address);
-  console.log(`Balance:   ${ethers.formatEther(balance)} BNB`);
-  console.log(`Network:   ${(await ethers.provider.getNetwork()).chainId}\n`);
+  console.log(`Balance:     ${ethers.formatEther(balance)} BNB`);
+  console.log(`Network:     ${(await ethers.provider.getNetwork()).chainId}\n`);
 
   // ─── 1. SWARM TOKEN ──────────────────────────────────────────────────────
+  // M-01 FIX: Pass GNOSIS_SAFE as _owner so 1B SWARM mint directly to multisig.
+  // Deployer EOA is only used to sign transactions — never holds token supply.
 
   console.log("1. Deploying SwarmToken ($SWARM)...");
   const SwarmToken = await ethers.getContractFactory("SwarmToken");
-  const token = await SwarmToken.deploy(deployer.address);
+  const token = await SwarmToken.deploy(GNOSIS_SAFE);   // ← Safe, not deployer
   await token.waitForDeployment();
   console.log(`   ✅ SwarmToken:   ${token.target}`);
+  console.log(`   ✅ 1B SWARM minted to Gnosis Safe: ${GNOSIS_SAFE}`);
 
   // ─── 2. SWARM CORE ───────────────────────────────────────────────────────
 
@@ -103,6 +120,7 @@ async function main() {
   console.log(`\nSwarmToken ($SWARM):  ${token.target}`);
   console.log(`SwarmCore:            ${core.target}`);
   console.log(`SwarmBadge:           ${nft.target}`);
+  console.log(`Gnosis Safe (owner):  ${GNOSIS_SAFE}`);
   console.log(`Vesting:              Team.Finance`);
   console.log(`Airdrop:              Gnosis Safe (TGE discretionary)`);
 
@@ -120,9 +138,10 @@ async function main() {
   // Save addresses to file for reference
   const fs = require("fs");
   const addresses = {
-    network: "opBNB Mainnet",
-    chainId: 204,
+    network: "BSC Mainnet",
+    chainId: 56,
     deployer: deployer.address,
+    gnosisSafe: GNOSIS_SAFE,
     deployedAt: new Date().toISOString(),
     contracts: {
       SwarmToken:  token.target,
@@ -130,7 +149,8 @@ async function main() {
       SwarmBadge:  nft.target,
       Vesting:     "Team.Finance",
       Airdrop:     "Gnosis Safe — TGE discretionary"
-    }
+    },
+    notes: "M-01 fix applied: 1B SWARM minted to Gnosis Safe, not deployer EOA"
   };
   fs.writeFileSync("deployment-addresses.json", JSON.stringify(addresses, null, 2));
   console.log("Addresses saved to deployment-addresses.json\n");
