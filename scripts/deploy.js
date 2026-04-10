@@ -88,6 +88,13 @@ async function main() {
   await setCoreTx.wait();
   console.log(`   ✅ SwarmCore set on SwarmToken`);
 
+  // M-01 FIX (final step): transfer token ownership to multisig now that
+  // setSwarmCore() has been called. Deployer EOA no longer owns anything.
+  console.log("\n   Transferring SwarmToken ownership to Gnosis Safe...");
+  const ownerTx = await token.transferOwnership(GNOSIS_SAFE);
+  await ownerTx.wait();
+  console.log(`   ✅ SwarmToken ownership → ${GNOSIS_SAFE}`);
+
   // ─── 5. DISTRIBUTE TOKENS ────────────────────────────────────────────────
   //
   // NOTE: Set wallet addresses before calling distribute().

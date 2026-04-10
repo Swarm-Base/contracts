@@ -97,17 +97,21 @@ contract SwarmToken is ERC20, ERC20Burnable, Ownable {
     // ─── CONSTRUCTOR ───────────────────────────────────────────────────────
 
     /**
-     * @notice Deploy SwarmToken with a Gnosis Safe multisig as _owner.
-     * @dev M-01 FIX: _owner MUST be a Gnosis Safe multisig, not an EOA.
-     *      All 1B SWARM are minted directly to _owner at construction.
-     *      If _owner is an EOA and that key is compromised before distribute()
-     *      is called, the entire supply is at risk. Use a multisig.
+     * @notice Deploy SwarmToken. All 1B SWARM are minted to _owner (Gnosis Safe).
+     * @dev M-01 FIX (complete):
+     *      1. _owner MUST be a Gnosis Safe multisig — tokens mint directly to it.
+     *      2. Contract ownership intentionally stays with the deployer EOA at
+     *         construction so that deploy.js can call setSwarmCore() in the same
+     *         script. deploy.js MUST call token.transferOwnership(GNOSIS_SAFE)
+     *         as its final step — verified in deployment output.
      *      Production Safe (BSC): 0x26eFA122d6f3bFe97A946768eeCb49379A953121
      */
     constructor(address _owner) ERC20("SwarmBase", "SWARM") Ownable() {
         require(_owner != address(0), "Invalid owner");
         _mint(_owner, TOTAL_SUPPLY);
-        _transferOwnership(_owner);
+        // NOTE: ownership stays with deployer EOA so deploy script can call
+        // setSwarmCore() before handing ownership to the multisig.
+        // deploy.js calls token.transferOwnership(GNOSIS_SAFE) as its final step.
     }
 
     // ─── SWARMCORE LINK ────────────────────────────────────────────────────
