@@ -1,10 +1,10 @@
 {
   "name": "swarmbase-v4",
   "version": "4.0.0",
-  "description": "SwarmBase v4 — Clean Points Accumulation Contract",
+  "description": "SwarmBase v4 \u2014 Clean Points Accumulation Contract",
   "scripts": {
     "compile": "hardhat compile",
-    "deploy:opbnb": "hardhat run deploy.js --network opbnb",
+    "deploy:opbnb": "hardhat run scripts/deploy-opbnb.js --network opbnb",
     "deploy:bsc": "hardhat run scripts/deploy.js --network bsc",
     "deploy:testnet": "hardhat run deploy.js --network opbnbTestnet",
     "test": "hardhat test"
