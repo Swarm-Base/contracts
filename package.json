@@ -6,8 +6,7 @@
     "compile": "hardhat compile",
     "deploy:opbnb": "hardhat run scripts/deploy-opbnb.js --network opbnb",
     "deploy:bsc": "hardhat run scripts/deploy-bsc.js --network bsc",
-    "deploy:testnet": "hardhat run scripts/deploy-opbnb.js --network opbnbTestnet",
-    "test": "hardhat test"
+    "deploy:testnet": "hardhat run scripts/deploy-opbnb.js --network opbnbTestnet"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
