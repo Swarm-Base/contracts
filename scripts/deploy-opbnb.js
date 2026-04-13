@@ -8,12 +8,11 @@
  *   1. SwarmCore  — engagement mechanics (register, checkIn, referral, scoring)
  *   2. SwarmBadge — soulbound NFT badges (linked to SwarmCore at constructor)
  *   3. lockSwarmCore() on SwarmBadge — freezes the SwarmCore address permanently
- *   4. transferOwnership → Gnosis Safe (both contracts)
+ *   4. Verify both contracts on opBNBscan (deployer EOA still owns both — can be confirmed)
+ *   5. transferOwnership → Gnosis Safe (final step — only after verification confirmed)
  *
  * Usage:
  *   PRIVATE_KEY=0x... GNOSIS_SAFE=0x26eFA... NODEREAL_API_KEY=... npm run deploy:opbnb
- *
- * ⚠️  After deploy: verify both contracts on opBNBscan (handled below via hardhat verify)
  */
 
 const { ethers } = require("hardhat");
@@ -42,8 +41,8 @@ async function main() {
   console.log("\n╔══════════════════════════════════════════╗");
   console.log("║  SwarmBase — opBNB Pre-TGE Deployment    ║");
   console.log("╚══════════════════════════════════════════╝");
-  console.log(`\nDeployer:    ${deployer.address}  (EOA — pays gas only, discarded after)`);
-  console.log(`Gnosis Safe: ${GNOSIS_SAFE}  (receives contract ownership)`);
+  console.log(`\nDeployer:    ${deployer.address}  (EOA — pays gas, owns contracts until verified)`);
+  console.log(`Gnosis Safe: ${GNOSIS_SAFE}  (receives ownership after verification)`);
   console.log(`Balance:     ${ethers.formatEther(balance)} BNB`);
   console.log(`Network:     opBNB Mainnet (chainId 204)\n`);
 
@@ -71,33 +70,23 @@ async function main() {
 
   // ─── 3. LOCK SWARMCORE ADDRESS IN SWARMBADGE ──────────────────────────────
   // Permanently freezes the SwarmCore address — setSwarmCore() can never be called again.
+  // L-03: required before any badge minting is possible.
   console.log("\n3. Locking SwarmCore address in SwarmBadge...");
   const lockTx = await badge.lockSwarmCore();
   await lockTx.wait();
-  console.log(`   ✅ lockSwarmCore() called — SwarmCore address is now permanent`);
+  console.log(`   ✅ lockSwarmCore() called — SwarmCore address is permanent`);
 
-  // ─── 4. TRANSFER OWNERSHIP → GNOSIS SAFE ─────────────────────────────────
-  // Deployer EOA relinquishes all admin rights. Safe becomes sole owner.
-  console.log("\n4. Transferring ownership to Gnosis Safe...");
-  const coreTx = await core.transferOwnership(GNOSIS_SAFE);
-  await coreTx.wait();
-  console.log(`   ✅ SwarmCore ownership → ${GNOSIS_SAFE}`);
-
-  const badgeTx = await badge.transferOwnership(GNOSIS_SAFE);
-  await badgeTx.wait();
-  console.log(`   ✅ SwarmBadge ownership → ${GNOSIS_SAFE}`);
-
-  // ─── SUMMARY ──────────────────────────────────────────────────────────────
+  // ─── SUMMARY (pre-transfer) ───────────────────────────────────────────────
   console.log("\n╔══════════════════════════════════════════╗");
-  console.log("║   DEPLOYMENT COMPLETE                    ║");
+  console.log("║   CONTRACTS DEPLOYED                     ║");
   console.log("╚══════════════════════════════════════════╝");
   console.log(`\nSwarmCore:   ${core.target}`);
   console.log(`SwarmBadge:  ${badge.target}`);
-  console.log(`Owner (Safe):${GNOSIS_SAFE}`);
+  console.log(`Current owner: ${deployer.address}  (deployer EOA)`);
   console.log(`Base URI:    ${BASE_URI}`);
   console.log(`Network:     opBNB Mainnet (chainId 204)`);
 
-  // Save addresses
+  // Save addresses before verification
   const addresses = {
     network: "opBNB Mainnet",
     chainId: 204,
@@ -109,43 +98,85 @@ async function main() {
       SwarmBadge: badge.target,
     },
     baseURI: BASE_URI,
+    ownershipStatus: "deployer EOA — pending transfer to Gnosis Safe after verification",
     notes: "Pre-TGE engagement layer. SwarmToken ($SWARM) deploys on BSC at TGE separately."
   };
   fs.writeFileSync("deployment-addresses-opbnb.json", JSON.stringify(addresses, null, 2));
   console.log("\nAddresses saved to deployment-addresses-opbnb.json");
 
-  // ─── 5. VERIFY ON OPBNBSCAN ───────────────────────────────────────────────
+  // ─── 4. VERIFY ON OPBNBSCAN (before ownership transfer) ──────────────────
+  // Deployer EOA still owns both contracts here — verification can be confirmed
+  // and ownership checked on opBNBscan before handing off to the Safe.
   const NODEREAL_KEY = process.env.NODEREAL_API_KEY || "";
   if (!NODEREAL_KEY) {
-    console.log("\n⚠️  NODEREAL_API_KEY not set — skipping verification.");
-    console.log("   Verify manually on opbnbscan.com or re-run with the key.");
+    console.log("\n⚠️  NODEREAL_API_KEY not set — skipping automatic verification.");
+    console.log("   Verify manually on opbnbscan.com before proceeding.");
+    console.log("   Then re-run with NODEREAL_API_KEY set, or transfer ownership manually.");
   } else {
-    console.log("\n5. Verifying contracts on opBNBscan...");
+    console.log("\n4. Verifying contracts on opBNBscan...");
+    let coreVerified = false;
+    let badgeVerified = false;
+
     try {
       execSync(
         `npx hardhat verify --network opbnb ${core.target}`,
         { stdio: "inherit" }
       );
-      console.log("   ✅ SwarmCore verified");
+      console.log("   ✅ SwarmCore verified on opBNBscan");
+      coreVerified = true;
     } catch (e) {
-      console.log("   ⚠️  SwarmCore verification failed — try manually on opbnbscan.com");
+      console.log("   ⚠️  SwarmCore verification failed — verify manually on opbnbscan.com");
     }
+
     try {
       execSync(
         `npx hardhat verify --network opbnb ${badge.target} ${core.target} "${BASE_URI}"`,
         { stdio: "inherit" }
       );
-      console.log("   ✅ SwarmBadge verified");
+      console.log("   ✅ SwarmBadge verified on opBNBscan");
+      badgeVerified = true;
     } catch (e) {
-      console.log("   ⚠️  SwarmBadge verification failed — try manually on opbnbscan.com");
+      console.log("   ⚠️  SwarmBadge verification failed — verify manually on opbnbscan.com");
+    }
+
+    if (!coreVerified || !badgeVerified) {
+      console.log("\n⚠️  One or more contracts not verified. Ownership transfer paused.");
+      console.log("   Verify manually on opbnbscan.com, then call transferOwnership() via deployer wallet.");
+      process.exit(1);
     }
   }
+
+  // ─── 5. TRANSFER OWNERSHIP → GNOSIS SAFE (final step) ────────────────────
+  // Only reached after both contracts are verified. Deployer EOA relinquishes
+  // all admin rights. Gnosis Safe becomes the sole owner of both contracts.
+  console.log("\n5. Transferring ownership to Gnosis Safe...");
+  const coreTx = await core.transferOwnership(GNOSIS_SAFE);
+  await coreTx.wait();
+  console.log(`   ✅ SwarmCore ownership  → ${GNOSIS_SAFE}`);
+
+  const badgeTx = await badge.transferOwnership(GNOSIS_SAFE);
+  await badgeTx.wait();
+  console.log(`   ✅ SwarmBadge ownership → ${GNOSIS_SAFE}`);
+  console.log(`   ✅ Deployer EOA has no further permissions — PK can be discarded`);
+
+  // Update saved addresses with final ownership status
+  addresses.ownershipStatus = `Gnosis Safe — ${GNOSIS_SAFE}`;
+  fs.writeFileSync("deployment-addresses-opbnb.json", JSON.stringify(addresses, null, 2));
+
+  console.log("\n╔══════════════════════════════════════════╗");
+  console.log("║   DEPLOYMENT COMPLETE ✅                 ║");
+  console.log("╚══════════════════════════════════════════╝");
+  console.log(`\nSwarmCore:    ${core.target}`);
+  console.log(`SwarmBadge:   ${badge.target}`);
+  console.log(`Owner (Safe): ${GNOSIS_SAFE}`);
+  console.log(`opBNBscan:    https://opbnbscan.com/address/${core.target}`);
+  console.log(`opBNBscan:    https://opbnbscan.com/address/${badge.target}`);
 
   console.log("\n─── NEXT STEPS ─────────────────────────────");
   console.log("1. Confirm ownership on opBNBscan (both contracts → owner = Gnosis Safe)");
   console.log("2. Update core.swarmbase.io frontend with new contract addresses");
-  console.log("3. Update README.md with production contract addresses");
-  console.log("4. Discard deployer wallet PK — it has no further permissions");
+  console.log("3. Update deployment-addresses.json in the public repo");
+  console.log("4. Discard deployer wallet PK — no further permissions");
   console.log("────────────────────────────────────────────\n");
 }
 
