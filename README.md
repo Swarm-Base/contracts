@@ -1,42 +1,46 @@
-# SwarmBase Smart Contracts
+# SwarmBase
 
-Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community participation, issues soulbound NFT badges, and handles $SWARM token distribution ahead of the token launch.
+A pre-TGE on-chain engagement and soulbound badge system built on opBNB Mainnet, with $SWARM token launching on BNB Smart Chain at TGE.
 
-**Engagement layer (SwarmCore + SwarmBadge):** opBNB Mainnet (ChainId 204) — permanent  
-**Production token (SwarmToken):** BNB Smart Chain / BSC (ChainId 56) — deployed at TGE  
-**Compiler:** Solidity 0.8.24 · OpenZeppelin 4.9.x · Optimizer enabled (200 runs)
+## Technology Stack
 
----
+- **Blockchain:** opBNB Mainnet (engagement layer) + BNB Smart Chain (token at TGE)
+- **Smart Contracts:** Solidity 0.8.24
+- **Frontend:** Vanilla JS + ethers.js v6
+- **Development:** Hardhat, OpenZeppelin 4.9.x
+- **Security:** Audited by Hashlock — all findings resolved
+
+## Supported Networks
+
+- opBNB Mainnet (Chain ID: 204) — SwarmCore + SwarmBadge (live)
+- BNB Smart Chain Mainnet (Chain ID: 56) — SwarmToken $SWARM (deployed at TGE)
+
+## Contract Addresses
+
+| Network | Contract | Address |
+|---------|----------|---------|
+| opBNB Mainnet | SwarmCore | `0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C` |
+| opBNB Mainnet | SwarmBadge | `0x6f7Cb024E5B285A9E7eE1b9D31e864e9d2B36627` |
+| BNB Smart Chain | SwarmToken ($SWARM) | TBD — deployed at TGE |
+
+## Features
+
+- **On-chain engagement scoring** — users register, check in daily, and earn SwarmScore; all activity recorded on opBNB Mainnet
+- **Referral system** — open referral with tiered quality bonuses; referrers earn ongoing rewards as their referees stay active (3 / 7 / 30 / 90 check-in milestones)
+- **Soulbound NFT badges** — three tiers (Pioneer, Builder, OG) gated by SwarmScore; non-transferable after mint, enforced fully on-chain
+- **Security with pause control** — owner can pause all state-writing functions; renounceOwnership disabled to preserve emergency controls
+- **Gnosis Safe multisig ownership** — both contracts owned by a Gnosis Safe multisig; no single point of failure
 
 ## Documentation
 
 | Document | Description |
 |---|---|
-| [Whitepaper v1.4](docs/SwarmBase-Whitepaper-v1.4.pdf) | Full technical whitepaper — also at swarmbase.io/whitepaper |
-| [OVERVIEW](docs/OVERVIEW.md) | What SwarmBase is, how the engagement layer works, what happens at TGE |
-| [ARCHITECTURE](docs/ARCHITECTURE.md) | Contract interactions, state machines, scoring formula, events |
-| [TOKENOMICS](docs/TOKENOMICS.md) | $SWARM distribution, vesting, DEX liquidity, airdrop mechanics |
-| [ROADMAP](docs/ROADMAP.md) | Phased delivery: Phase 1 (live) through Phase 5 (full decentralization) |
-| [AUDIT SCOPE](docs/AUDIT-SCOPE.md) | Audit targets, security properties to verify, known design decisions |
-
-**Start here:** [docs/OVERVIEW.md](docs/OVERVIEW.md) → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) → [docs/AUDIT-SCOPE.md](docs/AUDIT-SCOPE.md)
-
----
-
-## Audit — 3 Contracts
-
-Audited by [Hashlock](https://hashlock.com). All findings resolved.
-
-| Contract | File |
-|---|---|
-| SwarmCore | `contracts/SwarmCore.sol` |
-| SwarmBadge | `contracts/SwarmBadge.sol` |
-| SwarmToken | `contracts/SwarmToken.sol` |
-
-Flattened single-file versions (for explorer verification only — **not for audit review**): `flattened/`  
-Production contract addresses: see `deployment-addresses.json` (pending TGE deploy)
-
----
+| [Whitepaper v1.4](docs/SwarmBase-Whitepaper-v1.4.pdf) | Full technical whitepaper |
+| [OVERVIEW](docs/OVERVIEW.md) | What SwarmBase is and how the engagement layer works |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Contract interactions, state machines, scoring formula |
+| [TOKENOMICS](docs/TOKENOMICS.md) | $SWARM distribution, vesting, DEX liquidity |
+| [AUDIT SCOPE](docs/AUDIT-SCOPE.md) | Audit targets and security properties |
+| [DEPLOY GUIDE](DEPLOY.md) | Deployment instructions for opBNB and BSC |
 
 ## Quick Start
 
@@ -46,12 +50,10 @@ npm run deploy:opbnb   # SwarmCore + SwarmBadge on opBNB
 npm run deploy:bsc     # SwarmToken on BSC (TGE)
 ```
 
----
-
 ## Repository Structure
 
 ```
-contracts/           — 3 audit-scope contracts
+contracts/           — 3 audited contracts
 flattened/           — single-file flattened versions (for explorer verification)
 docs/                — full project documentation
 scripts/
@@ -62,15 +64,12 @@ hardhat.config.js
 deployment-addresses.json
 ```
 
----
+## Audit
+
+Audited by [Hashlock](https://hashlock.com). All findings resolved across two audit rounds. Audit documentation in `docs/AUDIT-SCOPE.md`.
 
 ## On-Chain Activity
 
-A 100-wallet simulation was run on opBNB Mainnet demonstrating:
-- 4-tier referral tree (founders → early adopters → community → casual)
-- 55 referral registrations, 44 direct
-- 57 check-ins, 82 Pioneer NFT mints
-- 15 passive (registered + minted, no check-in)
-- 15 inactive (registered only)
-
-View all transactions: [opbnbscan.com/address/0x333628c9e0C3B300558C1a998534001A31F12314](https://opbnbscan.com/address/0x333628c9e0C3B300558C1a998534001A31F12314)
+- Engagement layer live on opBNB Mainnet
+- Users can register, check in daily, refer others, and mint soulbound badges
+- All activity publicly verifiable on [opBNBscan](https://opbnbscan.com/address/0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C)
