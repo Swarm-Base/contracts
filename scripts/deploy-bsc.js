@@ -4,17 +4,27 @@
  * Deploys SwarmToken ($SWARM) ONLY to BNB Smart Chain (ChainId 56).
  * SwarmCore + SwarmBadge are on opBNB — do NOT redeploy them here.
  *
- * Deploy order:
- *   1. SwarmToken ($SWARM) — 1B supply minted directly to Gnosis Safe
- *   2. setWallets()        — configure distribution wallet addresses
- *   3. distribute()        — release tokens to all allocation wallets
- *   4. transferOwnership() — hand contract ownership to Gnosis Safe
+ * ─── CRITICAL: TOKEN DISTRIBUTION ────────────────────────────────────────────
+ * 1B SWARM are minted directly to the Gnosis Safe at construction.
+ * The deployer EOA holds ZERO tokens — only contract ownership temporarily.
+ *
+ * distribute() CANNOT be called by the deployer EOA because:
+ *   - distribute() does: _transfer(msg.sender, walletAddress, amount)
+ *   - msg.sender = deployer EOA, who has 0 SWARM balance → reverts
+ *
+ * distribute() MUST be called from the Gnosis Safe (who holds the 1B SWARM).
+ * This script handles everything the deployer EOA can do:
+ *   1. Deploy SwarmToken (1B SWARM → Gnosis Safe)
+ *   2. setWallets() — set all 9 allocation wallet addresses
+ *   3. transferOwnership() → Gnosis Safe (deployer loses all permissions)
+ * Then from the Gnosis Safe multisig:
+ *   4. distribute() — releases tokens from Safe to all allocation wallets
  *
  * Cross-chain note:
- *   SwarmCore lives on opBNB. SwarmToken.setSwarmCore() is intentionally
- *   NOT called here — cross-chain calls are not supported. Fee mechanism
- *   on BSC token remains disabled (swarmCoreContract = address(0)) unless
- *   a bridge/cross-chain solution is implemented later.
+ *   SwarmCore lives on opBNB. setSwarmCore() intentionally NOT called here —
+ *   cross-chain calls are not supported. Fee mechanism on BSC token remains
+ *   disabled (swarmCoreContract = address(0)) unless a bridge solution is
+ *   implemented later.
  *
  * Usage:
  *   PRIVATE_KEY=0x... GNOSIS_SAFE=0x26eFA122d6f3bFe97A946768eeCb49379A953121 npm run deploy:bsc
@@ -46,8 +56,10 @@ async function main() {
   console.log("\n╔══════════════════════════════════════════╗");
   console.log("║  SwarmBase — BSC TGE Deployment          ║");
   console.log("╚══════════════════════════════════════════╝");
-  console.log(`\nDeployer:    ${deployer.address}  (EOA — pays gas only, discard PK after)`);
-  console.log(`Gnosis Safe: ${GNOSIS_SAFE}  (receives 1B SWARM + contract ownership)`);
+  console.log(`\nDeployer:    ${deployer.address}`);
+  console.log(`             (EOA — pays gas + sets wallets, holds 0 SWARM)`);
+  console.log(`Gnosis Safe: ${GNOSIS_SAFE}`);
+  console.log(`             (receives 1B SWARM at mint + contract ownership after deploy)`);
   console.log(`Balance:     ${ethers.formatEther(balance)} BNB`);
   console.log(`Network:     BNB Smart Chain (chainId 56)\n`);
 
@@ -57,73 +69,74 @@ async function main() {
   }
 
   // ─── 1. DEPLOY SWARMTOKEN ──────────────────────────────────────────────────
-  // M-01 FIX: 1B SWARM mint directly to Gnosis Safe — deployer EOA never holds supply.
-  // Ownership stays with deployer temporarily so we can call setWallets + distribute.
-  // transferOwnership → Safe is the final step of this script.
+  // M-01 FIX: 1B SWARM mint directly to Gnosis Safe — deployer EOA holds 0 tokens.
+  // Deployer EOA retains CONTRACT ownership temporarily (needed for setWallets below).
+  // Ownership is transferred to Safe in step 3.
 
   console.log("1. Deploying SwarmToken ($SWARM)...");
   const SwarmToken = await ethers.getContractFactory("SwarmToken");
   const token = await SwarmToken.deploy(GNOSIS_SAFE);
   await token.waitForDeployment();
   console.log(`   ✅ SwarmToken:          ${token.target}`);
-  console.log(`   ✅ 1B SWARM minted to:  ${GNOSIS_SAFE}`);
+  console.log(`   ✅ 1B SWARM minted to:  ${GNOSIS_SAFE} (Gnosis Safe)`);
+  console.log(`   ✅ Deployer EOA holds:  0 SWARM (minted directly to Safe)`);
 
   // ─── 2. SET DISTRIBUTION WALLETS ─────────────────────────────────────────
-  // Fill in real allocation wallet addresses before running.
-  // All wallets that are not DEX liquidity should be Gnosis Safe or Team.Finance locks.
+  // Called by deployer EOA (current owner) — no token transfers involved.
+  // All wallet addresses must be confirmed before running this step.
+  // Replace placeholders with real addresses before production deploy.
   //
-  // UNCOMMENT AND FILL IN ADDRESSES BEFORE PRODUCTION DEPLOY:
+  // ⚠️  FILL IN ALL 9 ADDRESSES BEFORE RUNNING:
   //
   // console.log("\n2. Setting distribution wallets...");
   // const setWalletsTx = await token.setWallets(
-  //   "0xCOMMUNITY",       // 30% — community rewards (Gnosis Safe)
-  //   "0xTEAM",            // 15% — team (Team.Finance lock, 6mo cliff 24mo vest)
-  //   "0xECOSYSTEM",       // 15% — ecosystem (Gnosis Safe)
-  //   "0xMARKETING",       // 10% — marketing (Gnosis Safe)
-  //   "0xSTRATEGIC_ROUND", // 10% — strategic round (Team.Finance lock)
-  //   "0xTREASURY",        //  8% — treasury (Gnosis Safe)
-  //   "0xLIQUIDITY",       //  7% — DEX liquidity (LP pool — Team.Finance LP lock)
-  //   "0xRESERVE",         //  3% — reserve (Gnosis Safe)
-  //   "0xSTRATEGIC_PARTNERS" // 2% — strategic partners (Team.Finance lock)
+  //   "0xCOMMUNITY",         // 20% — 200M SWARM (Gnosis Safe)
+  //   "0xTEAM",              // 15% — 150M SWARM (Team.Finance lock: 12mo cliff, 24mo vest)
+  //   "0xECOSYSTEM",         // 15% — 150M SWARM (Gnosis Safe)
+  //   "0xMARKETING",         // 12% — 120M SWARM (Gnosis Safe)
+  //   "0xSTRATEGIC_ROUND",   // 10% — 100M SWARM (Team.Finance lock: 12mo cliff, 12mo vest)
+  //   "0xTREASURY",          //  8% —  80M SWARM (Gnosis Safe)
+  //   "0xLIQUIDITY",         //  8% —  80M SWARM (DEX LP wallet, Team.Finance LP lock after listing)
+  //   "0xRESERVE",           //  7% —  70M SWARM (Gnosis Safe)
+  //   "0xSTRATEGIC_PARTNERS" //  5% —  50M SWARM (Team.Finance lock: 12mo cliff, 12mo vest)
   // );
   // await setWalletsTx.wait();
-  // console.log("   ✅ Wallets set");
+  // console.log("   ✅ All 9 wallets set");
 
-  // ─── 3. DISTRIBUTE TOKENS ─────────────────────────────────────────────────
-  // Call AFTER setWallets(). Releases tokens to all allocation wallets.
-  //
-  // UNCOMMENT WHEN READY:
-  //
-  // console.log("\n3. Distributing tokens...");
-  // const distributeTx = await token.distribute();
-  // await distributeTx.wait();
-  // console.log("   ✅ Tokens distributed to all wallets");
-
-  // ─── 4. TRANSFER OWNERSHIP → GNOSIS SAFE ─────────────────────────────────
-  // Deployer EOA relinquishes all admin rights. Safe becomes sole owner.
+  // ─── 3. TRANSFER OWNERSHIP → GNOSIS SAFE ─────────────────────────────────
+  // Deployer EOA relinquishes all admin rights.
+  // After this point: ONLY the Gnosis Safe can call distribute(), burnFees(), etc.
   console.log("\n2. Transferring SwarmToken ownership to Gnosis Safe...");
   const ownerTx = await token.transferOwnership(GNOSIS_SAFE);
   await ownerTx.wait();
   console.log(`   ✅ Ownership transferred → ${GNOSIS_SAFE}`);
-  console.log(`   ✅ Deployer EOA has no further permissions — PK can be discarded`);
+  console.log(`   ✅ Deployer EOA has no further permissions`);
 
   // ─── SUMMARY ──────────────────────────────────────────────────────────────
   console.log("\n╔══════════════════════════════════════════╗");
-  console.log("║   DEPLOYMENT COMPLETE                    ║");
+  console.log("║   DEPLOY COMPLETE — ACTION REQUIRED      ║");
   console.log("╚══════════════════════════════════════════╝");
   console.log(`\nSwarmToken ($SWARM):  ${token.target}`);
   console.log(`Gnosis Safe (owner):  ${GNOSIS_SAFE}`);
   console.log(`Network:              BNB Smart Chain (chainId 56)`);
-  console.log(`SwarmCore (opBNB):    separate — engagement layer on opBNB`);
+  console.log(`1B SWARM balance:     Gnosis Safe ✅`);
   console.log(`Fee mechanism:        disabled (swarmCoreContract = address(0))`);
 
-  console.log("\n─── NEXT STEPS ─────────────────────────────");
-  console.log("1. Uncomment + fill setWallets() and distribute() above, redeploy");
-  console.log("2. Verify SwarmToken on BscScan");
-  console.log("3. Create Team.Finance locks for Team / Strategic Round / Strategic Partners");
-  console.log("4. Create Team.Finance LP lock after DEX listing");
-  console.log("5. Discard deployer wallet PK — no further permissions");
-  console.log("────────────────────────────────────────────\n");
+  console.log("\n─── NEXT STEPS (in order) ───────────────────────");
+  console.log("1. Verify SwarmToken on BscScan");
+  console.log("2. Uncomment setWallets() above, fill real addresses, redeploy OR");
+  console.log("   call SwarmToken.setWallets() directly from Gnosis Safe on BscScan");
+  console.log("3. From Gnosis Safe: call SwarmToken.distribute()");
+  console.log("   ⚠️  MUST be called from Safe — Safe holds the 1B SWARM balance");
+  console.log("       Deployer EOA holds 0 tokens and cannot distribute");
+  console.log("4. Create Team.Finance locks for:");
+  console.log("   - Team wallet (12mo cliff, 24mo vest)");
+  console.log("   - Strategic Round wallet (12mo cliff, 12mo vest)");
+  console.log("   - Strategic Partners wallet (12mo cliff, 12mo vest)");
+  console.log("5. Add DEX liquidity on PancakeSwap (BSC)");
+  console.log("6. Lock LP tokens on Team.Finance (12 months minimum)");
+  console.log("7. Discard deployer wallet PK — no further permissions");
+  console.log("──────────────────────────────────────────────────\n");
 
   // Save addresses
   const addresses = {
@@ -137,8 +150,11 @@ async function main() {
       SwarmCore:  "opBNB — see deployment-addresses-opbnb.json",
       SwarmBadge: "opBNB — see deployment-addresses-opbnb.json",
     },
+    tokenBalance: `1B SWARM in Gnosis Safe (${GNOSIS_SAFE})`,
+    distributionStatus: "pending — call distribute() from Gnosis Safe after setWallets()",
     notes: [
       "M-01 fix: 1B SWARM minted to Gnosis Safe, not deployer EOA",
+      "distribute() MUST be called from Gnosis Safe (Safe holds the tokens)",
       "setSwarmCore() not called — SwarmCore is on opBNB (different chain)",
       "Fee mechanism disabled on BSC token (swarmCoreContract = address(0))"
     ]
