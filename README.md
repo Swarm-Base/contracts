@@ -4,7 +4,6 @@ Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community 
 
 **Engagement layer (SwarmCore + SwarmBadge):** opBNB Mainnet (ChainId 204) — permanent  
 **Production token (SwarmToken):** BNB Smart Chain / BSC (ChainId 56) — deployed at TGE  
-**Pre-TGE token test deploy:** opBNB Mainnet (same addresses below, for testing only)  
 **Compiler:** Solidity 0.8.24 · OpenZeppelin 4.9.x · Optimizer enabled (200 runs)
 
 ---
@@ -24,15 +23,18 @@ Pre-TGE on-chain engagement layer for the SwarmBase protocol. Records community 
 
 ---
 
-## Audit Scope — 3 Contracts
+## Audit — 3 Contracts
 
-| Contract | Address (opBNB) |
+Audited by [Hashlock](https://hashlock.com). All findings resolved.
+
+| Contract | File |
 |---|---|
-| `contracts/SwarmCore.sol` | `0x333628c9e0C3B300558C1a998534001A31F12314` |
-| `contracts/SwarmBadge.sol` | `0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c` |
-| `contracts/SwarmToken.sol` | `0x5B0fdb169Caba66b16C06A1B2D655993114e6458` |
+| SwarmCore | `contracts/SwarmCore.sol` |
+| SwarmBadge | `contracts/SwarmBadge.sol` |
+| SwarmToken | `contracts/SwarmToken.sol` |
 
-Flattened single-file versions (for opBNBscan verification only — **not for audit review**): `flattened/`
+Flattened single-file versions (for explorer verification only — **not for audit review**): `flattened/`  
+Production contract addresses: see `deployment-addresses.json` (pending TGE deploy)
 
 ---
 
@@ -40,7 +42,8 @@ Flattened single-file versions (for opBNBscan verification only — **not for au
 
 ```bash
 npm install
-npx hardhat test     # 43 passing
+npm run deploy:opbnb   # SwarmCore + SwarmBadge on opBNB
+npm run deploy:bsc     # SwarmToken on BSC (TGE)
 ```
 
 ---
@@ -49,12 +52,12 @@ npx hardhat test     # 43 passing
 
 ```
 contracts/           — 3 audit-scope contracts
-flattened/           — single-file flattened versions
+flattened/           — single-file flattened versions (for explorer verification)
 docs/                — full project documentation
-test/                — 38 tests, full mechanics coverage
 scripts/
-  deploy.js          — deployment script
-  simulate-100.js    — 100-wallet realistic simulation
+  deploy-opbnb.js    — pre-TGE deploy: SwarmCore + SwarmBadge on opBNB
+  deploy-bsc.js      — TGE deploy: SwarmToken on BSC
+  deploy.js          — full-stack deploy (same-chain, testing reference)
 hardhat.config.js
 deployment-addresses.json
 ```

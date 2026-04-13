@@ -31,7 +31,7 @@ Deployed by: `0x54f3A4e15f1ff2A8e0B21a12d46e108522b91881`
 ### Step 1: Setup
 
 ```bash
-cd /Users/mark/.openclaw/workspace/swarmbase-v4
+git clone https://github.com/Swarm-Base/contracts.git && cd contracts
 # Ensure PRIVATE_KEY in .env is the Gnosis Safe owner / deployer
 ```
 
@@ -67,12 +67,12 @@ SwarmToken.distribute()
 
 1. Create 3 Team.Finance vesting locks (Team / Strategic Round / Strategic Partners)
 2. Add liquidity on PancakeSwap (BSC) — lock LP tokens on Team.Finance for 12 months
-3. Transfer SwarmToken ownership to Gnosis Safe
-4. Verify SwarmToken on BscScan
+3. Verify SwarmToken on BscScan
+4. Discard deployer EOA private key — ownership already transferred to Gnosis Safe by deploy script
 
-### Step 5: Verify on opBNBscan (already done for pre-TGE contracts)
+### Step 5: Verify on opBNBscan
 
-SwarmCore and SwarmBadge are already verified on opBNBscan.
+After production deploy of SwarmCore and SwarmBadge (deploy-opbnb.js), verify both contracts on opBNBscan using the flattened files in `flattened/`. The NODEREAL_API_KEY env var enables automatic verification in deploy-opbnb.js.
 
 ---
 
