@@ -295,6 +295,8 @@ describe("SwarmBase v4", function () {
   describe("SwarmBadge — Badge Minting", () => {
 
     beforeEach(async () => {
+      // L-03 fix: lockSwarmCore() must be called before minting is allowed
+      await nft.connect(owner).lockSwarmCore();
       await core.connect(user1).register();
     });
 
@@ -409,7 +411,60 @@ describe("SwarmBase v4", function () {
       await expect(token.setSwarmCore(user1.address))
         .to.be.revertedWith("SwarmCore address is locked");
     });
+
+    // L-06: setWallets is one-time only
+    it("L-06: setWallets reverts on second call", async () => {
+      await token.setWallets(
+        wallets.community, wallets.team, wallets.ecosystem, wallets.marketing,
+        wallets.strategicRound, wallets.treasury, wallets.liquidity,
+        wallets.reserve, wallets.strategicPartners
+      );
+      await expect(token.setWallets(
+        wallets.community, wallets.team, wallets.ecosystem, wallets.marketing,
+        wallets.strategicRound, wallets.treasury, wallets.liquidity,
+        wallets.reserve, wallets.strategicPartners
+      )).to.be.revertedWith("L-06: Wallets already set");
+    });
+
+    // L-05: WalletsSet event is emitted
+    it("L-05: setWallets emits WalletsSet event", async () => {
+      await expect(token.setWallets(
+        wallets.community, wallets.team, wallets.ecosystem, wallets.marketing,
+        wallets.strategicRound, wallets.treasury, wallets.liquidity,
+        wallets.reserve, wallets.strategicPartners
+      )).to.emit(token, "WalletsSet");
+    });
   });
 
+  // ─── AUDIT FIX COVERAGE ─────────────────────────────────────────────────
+
+  describe("Audit Fixes — Round 1", () => {
+
+    // L-01: setApprovalForAll blocked on soulbound badge
+    it("L-01: setApprovalForAll reverts on SwarmBadge", async () => {
+      await expect(nft.connect(user1).setApprovalForAll(user2.address, true))
+        .to.be.revertedWith("SwarmBadge: soulbound, approvals disabled");
+    });
+
+    // L-03: minting blocked until SwarmCore is locked
+    it("L-03: mintPioneer reverts if SwarmCore not locked", async () => {
+      // nft from outer beforeEach has swarmCoreLocked = false (lockSwarmCore not called)
+      await core.connect(user1).register();
+      await expect(nft.connect(user1).mintPioneer())
+        .to.be.revertedWith("SwarmBadge: lock SwarmCore before minting");
+    });
+
+    // L-06: walletsSet flag prevents double-set
+    it("L-06: walletsSet is true after setWallets", async () => {
+      const signers = await ethers.getSigners();
+      await token.setWallets(
+        signers[5].address, signers[6].address, signers[7].address,
+        signers[8].address, signers[9].address, signers[10].address,
+        signers[11].address, signers[12].address, signers[13].address
+      );
+      expect(await token.walletsSet()).to.equal(true);
+    });
+
+  });
 
 });
