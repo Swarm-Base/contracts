@@ -17,11 +17,10 @@ A pre-TGE on-chain engagement and soulbound badge system built on opBNB Mainnet,
 
 ## Contract Addresses
 
-| Network | Contract | Address |
-|---------|----------|---------|
-| opBNB Mainnet | SwarmCore | `0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C` |
-| opBNB Mainnet | SwarmBadge | `0x6f7Cb024E5B285A9E7eE1b9D31e864e9d2B36627` |
-| BNB Smart Chain | SwarmToken ($SWARM) | TBD — deployed at TGE |
+| Network | Core Contract | Token Contract | Engagement Contract |
+|---------|--------------|----------------|---------------------|
+| opBNB Mainnet (204) | `0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C` (SwarmCore) | TBD at TGE | `0x6f7Cb024E5B285A9E7eE1b9D31e864e9d2B36627` (SwarmBadge) |
+| BNB Smart Chain (56) | TBD at TGE (SwarmToken $SWARM) | TBD at TGE | — |
 
 ## Features
 
