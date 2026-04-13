@@ -138,11 +138,13 @@ All three contracts are currently deployed on **opBNB Mainnet (ChainId 204)** fo
 
 **Important:** SwarmCore and SwarmBadge will remain on opBNB as the engagement layer. SwarmToken will be **redeployed on BSC (ChainId 56)** at TGE as the production $SWARM token. The contract logic being audited here is identical — only the deployment chain changes.
 
-| Contract | Pre-TGE Address (opBNB) | Production Chain |
+| Contract | Production Chain | Address |
 |---|---|---|
-| SwarmToken | `0x5B0fdb169Caba66b16C06A1B2D655993114e6458` | BSC (redeployed at TGE) |
-| SwarmCore | `0x333628c9e0C3B300558C1a998534001A31F12314` | opBNB (permanent) |
-| SwarmBadge | `0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c` | opBNB (permanent) |
+| SwarmToken | BSC (redeployed at TGE) | TBD — pending production deploy |
+| SwarmCore | opBNB (permanent) | TBD — pending production deploy with audit-fixed contracts |
+| SwarmBadge | opBNB (permanent) | TBD — pending production deploy with audit-fixed contracts |
+
+> Pre-audit test contracts were deployed on opBNB prior to the audit. Production contracts (this codebase) will be redeployed with all audit findings resolved. Addresses will be updated post-deploy.
 
 opBNBscan: https://opbnbscan.com
 
@@ -151,3 +153,14 @@ opBNBscan: https://opbnbscan.com
 ## Questions / Contact
 
 Any questions about design decisions or additional context: swarmbase.io
+---
+
+## Post-Audit Changes
+
+The following changes were made after Hashlock's audit confirmation of `audit-fixes-round-2`:
+
+| Change | File | Type | Security Impact |
+|---|---|---|---|
+| `getEligibility()` now returns `false` when `swarmCoreLocked == false` | `SwarmBadge.sol` | View function fix | None — read-only, matches existing `mintable()` behaviour |
+
+All other changes were to deploy scripts, documentation, and configuration only — no contract logic was modified.
