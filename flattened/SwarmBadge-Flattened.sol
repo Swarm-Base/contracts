@@ -1910,8 +1910,8 @@ contract SwarmBadge is ERC1155, Ownable, ReentrancyGuard {
         uint256 age = rt > 0 ? (block.timestamp - rt) / 1 days : 0;
         uint256 remaining = OG_MAX_SUPPLY - totalMinted[OG];
 
-        // If minting is paused, no badge is currently mintable — return false for all three
-        if (mintingPaused) {
+        // If minting is paused OR SwarmCore not yet locked, nothing is mintable
+        if (mintingPaused || !swarmCoreLocked) {
             return (false, false, false, sc, age, remaining);
         }
 
