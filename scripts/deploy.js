@@ -95,6 +95,24 @@ async function main() {
   await ownerTx.wait();
   console.log(`   ✅ SwarmToken ownership → ${GNOSIS_SAFE}`);
 
+  // ─── 5. LOCK SWARMCORE ON BADGE ──────────────────────────────────────────
+  // L-03 FIX: SwarmBadge.mintable() requires swarmCoreLocked == true.
+  // Must lock before any badge minting is possible.
+  console.log("\n5. Locking SwarmCore address on SwarmBadge...");
+  const lockBadgeTx = await nft.lockSwarmCore();
+  await lockBadgeTx.wait();
+  console.log(`   ✅ SwarmBadge.lockSwarmCore() called — SwarmCore address is permanent`);
+
+  // ─── 6. TRANSFER OWNERSHIP (CORE + BADGE) → GNOSIS SAFE ─────────────────
+  console.log("\n6. Transferring SwarmCore + SwarmBadge ownership to Gnosis Safe...");
+  const coreOwnerTx = await core.transferOwnership(GNOSIS_SAFE);
+  await coreOwnerTx.wait();
+  console.log(`   ✅ SwarmCore ownership  → ${GNOSIS_SAFE}`);
+
+  const badgeOwnerTx = await nft.transferOwnership(GNOSIS_SAFE);
+  await badgeOwnerTx.wait();
+  console.log(`   ✅ SwarmBadge ownership → ${GNOSIS_SAFE}`);
+
   // ─── 5. DISTRIBUTE TOKENS ────────────────────────────────────────────────
   //
   // NOTE: Set wallet addresses before calling distribute().
@@ -132,14 +150,14 @@ async function main() {
   console.log(`Airdrop:              Gnosis Safe (TGE discretionary)`);
 
   console.log("\n─── NEXT STEPS ────────────────────────");
-  console.log("1. Set wallet addresses: SwarmToken.setWallets()");
-  console.log("2. Call SwarmToken.distribute()");
-  console.log("3. Lock SwarmCore: SwarmToken.lockSwarmCore()");
-  console.log("4. Lock SwarmCore: SwarmBadge.lockSwarmCore()");
-  console.log("5. Verify all contracts on opBNBscan");
-  console.log("6. Create Team.Finance locks for Team / Strategic Round / Strategic Partners");
-  console.log("7. Lock LP tokens on Team.Finance after DEX listing");
-  console.log("8. Submit to DappBay");
+  console.log("1. Uncomment setWallets() + distribute() above and redeploy (or call via Safe)");
+  console.log("2. Call SwarmToken.lockSwarmCore() via Gnosis Safe (after setWallets/distribute)");
+  console.log("3. Verify all contracts on explorer");
+  console.log("4. Create Team.Finance locks for Team / Strategic Round / Strategic Partners");
+  console.log("5. Lock LP tokens on Team.Finance after DEX listing");
+  console.log("6. Discard deployer wallet PK — no further permissions");
+  console.log("NOTE: For production BSC TGE, use deploy-bsc.js (SwarmToken only).");
+  console.log("      deploy.js is for same-chain testing only.");
   console.log("────────────────────────────────────────\n");
 
   // Save addresses to file for reference
