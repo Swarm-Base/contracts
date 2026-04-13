@@ -74,7 +74,7 @@ async function main() {
   // ─── 3. SWARM BADGE ──────────────────────────────────────────────────────
 
   console.log("\n3. Deploying SwarmBadge...");
-  const baseURI = "ipfs://YOUR_IPFS_CID/"; // Replace with actual IPFS CID before deploy
+  const baseURI = "https://swarm-base.github.io/nft-metadata/"; // GitHub Pages — Swarm-Base/nft-metadata
   const SwarmNFT = await ethers.getContractFactory("SwarmBadge");
   const nft = await SwarmNFT.deploy(core.target, baseURI);
   await nft.waitForDeployment();

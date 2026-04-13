@@ -40,7 +40,7 @@ Flattened single-file versions (for opBNBscan verification only — **not for au
 
 ```bash
 npm install
-npx hardhat test     # 38 passing
+npx hardhat test     # 43 passing
 ```
 
 ---
