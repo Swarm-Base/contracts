@@ -1,24 +1,28 @@
 {
-  "note": "PRE-AUDIT test deploy — these contracts will be redeployed with audit fixes before TGE. Do not use for production.",
-  "status": "pending_redeploy",
-  "preTGETestDeploy": {
+  "note": "Production deployment \u2014 audit-fixed contracts (Hashlock audit complete)",
+  "status": "live",
+  "opBNB": {
     "network": "opBNB Mainnet",
     "chainId": 204,
-    "deployedAt": "2026-04-04T19:17:58.137Z",
+    "deployedAt": "2026-04-14T00:00:00.000Z",
+    "deployer": "0x2091d2c7736e30545F292C1536e45B4f41F1a407",
+    "owner": "0x26eFA122d6f3bFe97A946768eeCb49379A953121",
     "contracts": {
-      "SwarmToken": "0x5B0fdb169Caba66b16C06A1B2D655993114e6458",
-      "SwarmCore": "0x333628c9e0C3B300558C1a998534001A31F12314",
-      "SwarmBadge": "0xD84296141E1BD55F2B57A5fA62c8254eFbCED08c"
+      "SwarmCore": "0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C",
+      "SwarmBadge": "0x6f7Cb024E5B285A9E7eE1b9D31e864e9d2B36627"
+    },
+    "baseURI": "https://swarm-base.github.io/nft-metadata/",
+    "verified": true,
+    "explorer": {
+      "SwarmCore": "https://opbnbscan.com/address/0x01f9Eb284F94b54CF0854ef3B6FeF69C10babe0C#code",
+      "SwarmBadge": "https://opbnbscan.com/address/0x6f7Cb024E5B285A9E7eE1b9D31e864e9d2B36627#code"
     }
   },
-  "productionDeploy": {
-    "opBNB": {
-      "note": "SwarmCore + SwarmBadge — pending deploy with audit-fixed contracts",
-      "SwarmCore": "TBD",
-      "SwarmBadge": "TBD"
-    },
-    "bsc": {
-      "note": "SwarmToken ($SWARM) — deployed at TGE",
+  "bsc": {
+    "network": "BNB Smart Chain",
+    "chainId": 56,
+    "status": "pending \u2014 SwarmToken deployed at TGE",
+    "contracts": {
       "SwarmToken": "TBD"
     }
   }
