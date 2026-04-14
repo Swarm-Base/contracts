@@ -65,7 +65,12 @@ deployment-addresses.json
 
 ## Audit
 
-Audited by [Hashlock](https://hashlock.com). All findings resolved across two audit rounds. Audit documentation in `docs/AUDIT-SCOPE.md`.
+Audited by [Hashlock](https://hashlock.com). All findings resolved across two audit rounds.
+
+| Document | Description |
+|---|---|
+| [Final Audit Report](docs/SwarmBase-Audit-Hashlock-Final.pdf) | Hashlock full audit report — all findings resolved |
+| [Audit Scope](docs/AUDIT-SCOPE.md) | Audit targets, security properties, and findings summary |
 
 ## On-Chain Activity
 
